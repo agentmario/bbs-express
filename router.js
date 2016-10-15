@@ -87,7 +87,7 @@ router.route('/del')
 
   })
 router.route('/del/:id')
-    .get((req,res,next)=>{
+    .all((req,res,next)=>{
       res.type('json')
       let id = req.params.id
       db.deletePost(id,(err,txt)=>{
