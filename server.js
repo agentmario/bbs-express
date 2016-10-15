@@ -1,7 +1,7 @@
 const express = require('express');
 
 const app = express();
-const port = 3000;
+const port = 3333;
 const host = '0.0.0.0';
 const morgan = require('morgan');
 const router = require(__dirname + '/router.js')

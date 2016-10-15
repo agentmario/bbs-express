@@ -14,7 +14,7 @@ let postSchema = mongo.Schema({
 })
 let Post = mongo.model('Post',postSchema)
 
-Post.find({},(err,post)=>{console.log(post)})
+
 module.exports = {
   getAll(cb){
     Post.find({},(err,posts)=>{
@@ -30,17 +30,25 @@ module.exports = {
     })
 
   },
-  getLatest(_timetag,cb){
-    Post.find({timetag:{$gt:_timetag}},(err,posts)=>{
+  getLatest(__timetag,cb){
+    Post.find({timetag:{$gt:__timetag}},(err,posts)=>{
         cb(posts)
     })
   },
   deleteAll(token,cb){
     if(token === '1145141919')
       Post.remove({},(err)=>{
-        cb(err,"Collection cleared")
+        cb(null,"Collection cleared")
       })
     else
-      cb(null,"Token invalid")
+      cb(new Error('Token invalid'),null)
+  },
+  deletePost(__id,cb){
+    Post.remove({_id:__id},(err)=>{
+      if(!err)
+        cb(null,`Post id: ${__id} deleted`)
+      else
+        cb(err,`Failed to delete ${__id}`)
+    })
   }
 }

@@ -7,46 +7,61 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({
   extended: true
 }))
+class Response{
+  constructor(status,obj){
+    this.status = Boolean(status)
+    this.obj = Object(obj)
+  }
+}
 
 router.route('/all')
   .all((req,res,next)=>{
     res.type('json')
-    next()
+    if(req.method === 'GET')
+      next()
+    else(res.json(new Response(false, 'Cannot '+ req.method)))
   })
   .get((req,res,next)=>{
 
     db.getAll((contents)=>{
-      if(contents)
-        res.json(contents)
+      if(!!contents[0])
+        res.json(new Response(true,contents))
       else
-        res.end("Error")
+        res.json(new Response(false, 'Empty'))
     })
 
   })
 router.route(['/latest/:timetag','/latest'])
     .all((req,res,next)=>{
       res.type('json')
-      next()
+      if(req.method === 'GET')
+        next()
+      else(res.json(new Response(false, 'Cannot '+ req.method)))
     })
     .get((req,res,next)=>{
       let timetag = req.params.timetag||req.body.timetag||req.query.timetag
 
       db.getLatest(timetag,(contents)=>{
-        res.json(contents)
+        if(!!contents[0])
+          res.json(new Response(true,contents))
+        else
+          res.json(new Response(false,'Empty'))
       })
 
     })
 
 
-router.route('/:id')
+
+router.route('/post/:id')
   .post((req,res,next)=>{
+    res.type('json')
     let id = req.params.id
     let content = req.body.content
-    res.writeHead(200, {'Content-Type':'text-plain'})
+
     try{
       db.addPost(id,content,(err)=>{
         if(!err){
-          res.end('Posted')
+          res.json(new Response(true, 'Posted'))
         }
         else
           throw err
@@ -54,20 +69,33 @@ router.route('/:id')
 
     }
     catch(e){
-      res.end(`Failed: ${e}`)
+        res.json(new Response(false, 'Posted Failed'))
     }
 
   })
 
 router.route('/del')
-  .get((req,res,next)=>{
+  .all((req,res,next)=>{
+    res.type('json')
     let token = req.query.token||req.body.token
     db.deleteAll(token,(err,txt)=>{
       if(err)
-        console.log(err)
-      res.end(txt)
+        res.json(new Response(false, err.toString()))
+      else
+        res.json(new Response(true, txt))
     })
 
   })
+router.route('/del/:id')
+    .get((req,res,next)=>{
+      res.type('json')
+      let id = req.params.id
+      db.deletePost(id,(err,txt)=>{
+        if(err)
+          res.json(new Response(false, err.toString()))
+        else
+          res.json(new Response(true, txt))
+      })
 
+    })
 module.exports = router
