@@ -26,14 +26,31 @@ class Msg extends Component {
     );
   }
 }
-var dataStorage = [];
-localStorage.clear();
-dataStorage = JSON.parse(localStorage.getItem('latest5'));
+class MsgBoard extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    var children = [];
+    var arr = this.props.data;
+    for (var i = 0; i < arr.length; i++) children.push(React.createElement(Msg, { key: arr[i]._id, uid: arr[i].id, content: arr[i].content, date: new Date(arr[i].timetag).toLocaleString() }));
+    children.reverse();
+    return React.createElement(
+      "div",
+      null,
+      children
+    );
+  }
+}
+
+//localStorage.clear();
+//  dataStorage = JSON.parse(localStorage.getItem('latest5'));
 
 var id = document.getElementById('ID');
 var input = document.getElementById('CONTENT');
 var indicator = document.getElementById('indicator');
-var btn = document.getElementsByTagName('button')[0];
+var btn = document.getElementById('button');
+var bottom = document.getElementsByClassName('bottom')[0];
 var Indicator = React.createClass({
   displayName: "Indicator",
 
@@ -48,17 +65,26 @@ var Indicator = React.createClass({
     );
   }
 });
-
+var time = 0;
 function post() {
   var _id = id.value;
   var content = input.value;
-  var form = { content: content };
+  var form = { content };
+  if (!_id || !content) {
+    alert('请输入 ID 或内容');
+    return;
+  }
+
   fetch('/api/post/' + _id, {
     method: "POST",
-    body: form
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(form)
   }).then(res => {
     return res.json();
-  }).then(txt => console.log(txt));
+  });
 }
 function fetchAll() {
   fetch('/api/all').then(r => {
@@ -67,7 +93,7 @@ function fetchAll() {
     console.log(t);
   });
 }
-var time = 0;
+var dataStorage = new Array(0);
 try {
   var l = dataStorage.length;
   if (dataStorage[l - 1]) time = dataStorage[l - 1].timetag;
@@ -76,23 +102,35 @@ try {
 } catch (e) {
   console.log(e);
 }
+
 function fetchLatest(t) {
   fetch('/api/latest/' + t).then(r => {
     return r.json();
   }).then(t => {
     if (t.status) {
 
-      if (dataStorage === null) dataStorage = t.obj;else dataStorage = dataStorage.concat(t.obj);
+      if (dataStorage.length === 0) dataStorage = t.obj;else if (t.obj) {
 
-      if (dataStorage.length <= 5) localStorage.setItem('latest5', JSON.stringify(dataStorage));else localStorage.setItem('latest5', JSON.stringify(dataStorage.slice(-5)));
+        dataStorage.push.apply(dataStorage, t.obj);
+      }
+
+      //                if (dataStorage.length <= 5)
+      //                  localStorage.setItem('latest5', JSON.stringify(dataStorage));
+      //                else
+      //                  localStorage.setItem('latest5', JSON.stringify(dataStorage.slice(-5)));
       var l = dataStorage.length;
       var d = dataStorage[l - 1];
 
-      time = t.obj[t.obj.length - 1].timetag;
+      time = d.timetag || t.obj[t.obj.length - 1].timetag;
+      //console.log(dataStorage.length+' '+d);
+
+      // if(d)
+      //   ReactDOM.render(<Msg uid={d.id} content={d.content} date={(new Date(d.timetag)).toLocaleString()}/>,bottom);
+      if (dataStorage) ReactDOM.render(React.createElement(MsgBoard, { data: dataStorage }), bottom);
     } else {
       if (t.obj === "Empty") {
         //do sth;
-        console.log("Empty");
+
       }
     }
   }).catch(e => console.log(e) /*alert('Failed to fetch latest items.')*/);
@@ -101,11 +139,10 @@ function fetchLatest(t) {
 btn.addEventListener('click', post);
 
 ReactDOM.render(React.createElement(Indicator, { txt: input.value }), indicator);
-var d = new Date(Date.now()).toLocaleString();
-ReactDOM.render(React.createElement(Msg, { uid: "adadafwfw", content: "aaaaaaaaaa", date: d }), document.getElementsByClassName('bottom')[0]);
+
 input.addEventListener('keyup', function () {
   ReactDOM.render(React.createElement(Indicator, { txt: input.value }), indicator);
 });
 setInterval(() => {
   fetchLatest(time);
-}, 5000);
+}, 1000);

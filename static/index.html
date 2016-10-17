@@ -210,7 +210,7 @@
           console.log(t)
         })
   }
-
+  var dataStorage=new Array(0);
   try {
     var l = dataStorage.length;
     if (dataStorage[l-1])
@@ -224,7 +224,7 @@
 
   }
 
-  var dataStorage=new Array(0);
+
   function fetchLatest(t) {
     fetch('/api/latest/' + t)
         .then(r => {
@@ -278,7 +278,6 @@
   setInterval(()=> {
     fetchLatest(time)
   }, 1000);
-
 
 </script>
 
