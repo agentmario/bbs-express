@@ -93,6 +93,9 @@ function post() {
     body: JSON.stringify(form)
   }).then(res => {
     return res.json();
+  }).then(() => {
+    id.value = "";
+    input.value = "";
   });
 }
 function fetchAll() {
@@ -150,12 +153,13 @@ function fetchLatest(t) {
 btn.addEventListener('click', post);
 
 ReactDOM.render(React.createElement(Indicator, null), indicator);
-
-input.addEventListener('keyup', function () {
+function refreshIndicator() {
   var len = String(input.value).length || 0;
-
   ReactDOM.render(React.createElement(Indicator, { len0: len }), indicator);
-});
+}
+input.addEventListener('keyup', refreshIndicator);
+input.addEventListener('blur', refreshIndicator);
+
 setInterval(() => {
   fetchLatest(time);
 }, 1000);

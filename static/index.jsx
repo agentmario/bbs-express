@@ -86,7 +86,11 @@ const Component = React.Component;
       body: JSON.stringify(form)
     }).then((res)=> {
       return res.json();
-    });
+    })
+      .then(()=>{
+	id.value = "";
+	input.value = "";
+	});
   }
   function fetchAll() {
     fetch('/api/all')
@@ -160,12 +164,13 @@ const Component = React.Component;
   btn.addEventListener('click', post);
 
   ReactDOM.render(<Indicator />, indicator);
-
-  input.addEventListener('keyup', function () {
+  function refreshIndicator(){
     var len=String(input.value).length||0;
-
     ReactDOM.render(<Indicator len0={len}/>, indicator)
-  });
+  }
+  input.addEventListener('keyup',refreshIndicator);
+  input.addEventListener('blur',refreshIndicator);
+	
   setInterval(()=> {
     fetchLatest(time)
   }, 1000);
