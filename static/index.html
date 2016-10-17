@@ -271,14 +271,16 @@
 
                // if(d)
                //   ReactDOM.render(<Msg uid={d.id} content={d.content} date={(new Date(d.timetag)).toLocaleString()}/>,bottom);
-                if(dataStorage)
+
+                if(dataStorage.length>0)
                   ReactDOM.render(<MsgBoard data={dataStorage}/>,bottom);
+
               }
               else {
-                if (t.obj === "Empty") {
-                  //do sth;
+                  if(dataStorage.length===0)
+                    ReactDOM.render(<div>Empty</div>,bottom);
 
-                }
+
               }
             }
         ).catch(e=>console.log(e)/*alert('Failed to fetch latest items.')*/);
