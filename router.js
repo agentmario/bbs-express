@@ -10,7 +10,7 @@ router.use(bodyParser.urlencoded({
 class Response{
   constructor(status,obj){
     this.status = Boolean(status)
-    this.obj = Object(obj)
+    this.obj = obj
   }
 }
 
@@ -59,9 +59,9 @@ router.route('/post/:id')
     let content = req.body.content
 
     try{
-      db.addPost(id,content,(err)=>{
+      db.addPost(id,content,(err,t)=>{
         if(!err){
-          res.json(new Response(true, 'Posted'))
+          res.json(new Response(true, t))
         }
         else
           throw err

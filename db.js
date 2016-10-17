@@ -26,7 +26,7 @@ module.exports = {
   addPost(__id,__content,cb){
     let p = new Post({id:__id, content:__content, timetag:Date.now()})
     p.save((err,p)=>{
-      cb(err)
+      cb(err,p.timetag)
     })
 
   },
