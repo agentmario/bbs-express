@@ -1,4 +1,7 @@
 node_modules
-static/.idea
+
+static
+*.txt
+
 *.bat
 *.log*
