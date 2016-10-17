@@ -1,9 +1,9 @@
 const Component = React.Component;
-
 class Msg extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     return React.createElement(
       "div",
@@ -33,7 +33,7 @@ class MsgBoard extends Component {
   render() {
     var children = [];
     var arr = this.props.data;
-    for (var i = 0; i < arr.length; i++) children.push(React.createElement(Msg, { key: arr[i]._id, uid: arr[i].id, content: arr[i].content, date: new Date(arr[i].timetag).toLocaleString() }));
+    for (var i = 0; i < arr.length; i++) children.push(React.createElement(Msg, { key: arr[i]._id, keyid: arr[i]._id, uid: arr[i].id, content: arr[i].content, date: new Date(arr[i].timetag).toLocaleString() }));
     children.reverse();
     return React.createElement(
       "div",
@@ -42,6 +42,24 @@ class MsgBoard extends Component {
     );
   }
 }
+class Indicator extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    var color = "";
+    if (this.props.len0 >= 140) color = "red";else color = "black";
+    return React.createElement(
+      "div",
+      { style: { color: color } },
+      140 - this.props.len0
+    );
+  }
+}
+
+Indicator.defaultProps = {
+  len0: 0
+};
 
 //localStorage.clear();
 //  dataStorage = JSON.parse(localStorage.getItem('latest5'));
@@ -49,26 +67,17 @@ class MsgBoard extends Component {
 var id = document.getElementById('ID');
 var input = document.getElementById('CONTENT');
 var indicator = document.getElementById('indicator');
-var btn = document.getElementById('button');
+var btn = document.getElementsByTagName('button')[0];
 var bottom = document.getElementsByClassName('bottom')[0];
-var Indicator = React.createClass({
-  displayName: "Indicator",
 
-  propTypes: {
-    txt: React.PropTypes.string.isRequired
-  },
-  render() {
-    return React.createElement(
-      "div",
-      null,
-      140 - this.props.txt.length
-    );
-  }
-});
 var time = 0;
 function post() {
   var _id = id.value;
   var content = input.value;
+  if (content.length > 140) {
+    alert('字数超限 无法发送');
+    return;
+  }
   var form = { content };
   if (!_id || !content) {
     alert('请输入 ID 或内容');
@@ -126,22 +135,26 @@ function fetchLatest(t) {
 
       // if(d)
       //   ReactDOM.render(<Msg uid={d.id} content={d.content} date={(new Date(d.timetag)).toLocaleString()}/>,bottom);
-      if (dataStorage) ReactDOM.render(React.createElement(MsgBoard, { data: dataStorage }), bottom);
-    } else {
-      if (t.obj === "Empty") {
-        //do sth;
 
-      }
+      if (dataStorage.length > 0) ReactDOM.render(React.createElement(MsgBoard, { data: dataStorage }), bottom);
+    } else {
+      if (dataStorage.length === 0) ReactDOM.render(React.createElement(
+        "div",
+        null,
+        "Empty"
+      ), bottom);
     }
   }).catch(e => console.log(e) /*alert('Failed to fetch latest items.')*/);
 }
 
 btn.addEventListener('click', post);
 
-ReactDOM.render(React.createElement(Indicator, { txt: input.value }), indicator);
+ReactDOM.render(React.createElement(Indicator, null), indicator);
 
 input.addEventListener('keyup', function () {
-  ReactDOM.render(React.createElement(Indicator, { txt: input.value }), indicator);
+  var len = String(input.value).length || 0;
+
+  ReactDOM.render(React.createElement(Indicator, { len0: len }), indicator);
 });
 setInterval(() => {
   fetchLatest(time);
