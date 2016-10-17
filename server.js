@@ -17,5 +17,5 @@ app.set('json spaces', 0);
 srv = https.createServer({key,cert},app);
 
 srv.listen(port,host,(req,res,next)=>{
-  console.log(`Server started on http://${host}:${port}/`);
+  console.log(`Server started on https://${host}:${port}/`);
 });
