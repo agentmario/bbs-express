@@ -14,7 +14,7 @@ class Response{
   }
 }
 
-router.route('/all')
+router.route('/count')
   .all((req,res,next)=>{
     res.type('json')
     if(req.method === 'GET')
@@ -23,11 +23,11 @@ router.route('/all')
   })
   .get((req,res,next)=>{
 
-    db.getAll((contents)=>{
-      if(!!contents[0])
-        res.json(new Response(true,contents))
+    db.count((ct)=>{
+      if(typeof ct === 'number')
+        res.json(new Response(true,ct))
       else
-        res.json(new Response(false, 'Empty'))
+        res.json(new Response(false, 'Error'))
     })
 
   })

@@ -43,6 +43,14 @@ module.exports = {
     else
       cb(new Error('Token invalid'),null)
   },
+  count(cb){
+      Post.count({},(err,ct)=>{
+          if(!err)    
+            cb(ct);
+          else
+            cb(0);
+      });
+  },
   deletePost(__id,cb){
     Post.remove({_id:__id},(err)=>{
       if(!err)
